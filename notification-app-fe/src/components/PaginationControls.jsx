@@ -1,36 +1,61 @@
-import { Box, Pagination, Select, MenuItem, Typography } from '@mui/material';
+import React from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const PaginationControls = ({ pagination, onPageChange, onLimitChange }) => {
+export default function PaginationControls({ pagination, onPageChange, onLimitChange }) {
   if (!pagination || pagination.totalPages <= 1) return null;
 
-  return (
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 4, mb: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          Items per page:
-        </Typography>
-        <Select
-          value={pagination.itemsPerPage || 10}
-          onChange={(e) => onLimitChange(e.target.value)}
-          size="small"
-          sx={{ minWidth: 80 }}
-        >
-          <MenuItem value={5}>5</MenuItem>
-          <MenuItem value={10}>10</MenuItem>
-          <MenuItem value={20}>20</MenuItem>
-          <MenuItem value={50}>50</MenuItem>
-        </Select>
-      </Box>
-      
-      <Pagination 
-        count={pagination.totalPages} 
-        page={pagination.currentPage} 
-        onChange={(e, page) => onPageChange(page)} 
-        color="primary" 
-        shape="rounded"
-      />
-    </Box>
-  );
-};
+  const { currentPage, totalPages, itemsPerPage } = pagination;
 
-export default PaginationControls;
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-border">
+      {/* Limit Selector */}
+      <div className="flex items-center space-x-2 text-sm text-secondary">
+        <span>Show</span>
+        <select
+          value={itemsPerPage || 10}
+          onChange={(e) => onLimitChange(Number(e.target.value))}
+          className="bg-surface border border-border text-primary rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-primary/50 text-sm cursor-pointer hover:bg-surfaceHover transition-colors"
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={50}>50</option>
+        </select>
+        <span>per page</span>
+      </div>
+
+      {/* Page Selector */}
+      <div className="flex items-center space-x-1">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="p-2 border border-border rounded-lg bg-surface text-secondary hover:text-primary hover:bg-surfaceHover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              page === currentPage
+                ? 'bg-primary text-background font-semibold'
+                : 'bg-surface border border-border text-secondary hover:text-primary hover:bg-surfaceHover'
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="p-2 border border-border rounded-lg bg-surface text-secondary hover:text-primary hover:bg-surfaceHover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
